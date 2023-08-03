@@ -1,0 +1,24 @@
+{
+  "name": "walking_duck",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "author": "engylemure (jordao.rosario01@gmail.com)",
+  "license": "MIT",
+  "scripts": {
+    "start": "node build/index.js",
+    "build_and_start": "yarn build && yarn start",
+    "dev": "nodemon --watch src/ --exec \"yarn build_and_start\"",
+    "build": "tsc --incremental"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "nodemon": "^3.0.1",
+    "typescript": "^5.1.6"
+  },
+  "nodemonConfig": {
+    "ignore": ["node_modules/**"]
+  }
+}
