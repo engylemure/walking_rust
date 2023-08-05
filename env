@@ -5,3 +5,4 @@ DB_USER=root
 DB_PASSWORD=root
 DB_TYPE=postgres
 SERVER_PORT=80
+APP_SECRET_KEY=app_secret_key
