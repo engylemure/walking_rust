@@ -27,6 +27,9 @@ services:
     depends_on:
       - db
       - redis
+    links:
+      - db
+      - redis
     ports:
       - 8092:80
   python:
@@ -40,6 +43,9 @@ services:
     environment: 
       - PYTHON_ENV=dev
     depends_on:
+      - db
+      - redis
+    links:
       - db
       - redis
     ports:
@@ -56,6 +62,9 @@ services:
       - RUST_ENV=dev
       - RUST_LOG=debug
     depends_on:
+      - db
+      - redis
+    links:
       - db
       - redis
     ports:

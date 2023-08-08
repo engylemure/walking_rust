@@ -1,0 +1,20 @@
+[package]
+name = "api"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "api"
+path = "src/lib.rs"
+
+[dependencies]
+actix-web = "4"
+env_logger = "0.10.0"
+log = "0.4.19"
+redis = { version = "0.23.1", features = ["tokio-comp"] }
+tokio = { version = "1.29.1", features = ["full"] }
+migration = { path = "../migration" }
+entity = { path = "../entity" }
+sea-orm = { version = "0.12", features = ["sqlx-postgres","serde_json","with-chrono", "with-json", "macros"] }
+dotenv = "0.15.0"

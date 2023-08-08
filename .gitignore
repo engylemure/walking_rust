@@ -134,3 +134,9 @@ dist
 **/target
 **/__pycache__
 **/*.pyc
+**/.ash_history
+.ash_history
+**/**/.ash_history
+**/.env
+
+**/build

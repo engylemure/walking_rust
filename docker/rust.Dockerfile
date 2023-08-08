@@ -7,6 +7,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 
 RUN apk add libpq libaio libcurl libcrypto3 libgcc libncursesw libssl3 libstdc++ linux-pam zlib zlib-dev pkgconfig zstd-libs musl musl-dev openssl-dev libc6-compat make --no-cache
 RUN cargo install systemfd cargo-watch sea-orm-cli
+RUN rustup component add rustfmt
 
 ENV HOME=/opt/app
 
