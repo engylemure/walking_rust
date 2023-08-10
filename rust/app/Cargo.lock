@@ -333,6 +333,7 @@ dependencies = [
  "migration",
  "redis",
  "sea-orm",
+ "serde_json",
  "tokio",
 ]
 

@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.3",
+    "@types/morgan": "^1.9.4"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "zod": "^3.21.4"
+  }
+}

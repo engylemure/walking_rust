@@ -18,8 +18,6 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(User::Hash).blob(BlobSize::Medium).not_null())
-                    .col(ColumnDef::new(User::Salt).string_len(255).not_null())
                     .col(
                         ColumnDef::new(User::UserName)
                             .string_len(64)
@@ -113,8 +111,6 @@ impl MigrationTrait for Migration {
 enum User {
     Table,
     Id,
-    Hash,
-    Salt,
     UserName,
     CreatedAt,
     UpdatedAt,

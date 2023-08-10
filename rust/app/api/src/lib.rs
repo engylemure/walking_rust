@@ -1,6 +1,6 @@
 mod utils;
 
-use actix_web::{get, middleware::Logger, web, App, HttpServer, Responder};
+use actix_web::{get, middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
 use env_logger::Env;
 use log;
 use sea_orm::Database;
@@ -9,12 +9,17 @@ use utils::env::EnvironmentValues;
 
 #[get("/")]
 async fn hello() -> impl Responder {
-    format!("Hello World!")
+    HttpResponse::Ok().json(serde_json::json!({
+        "message": "Hello World!"
+    }))
 }
 
 #[get("/hello/{name}")]
 async fn greet(name: web::Path<String>) -> impl Responder {
-    format!("Hello {name}!")
+    let message = format!("Hello {name}!");
+    HttpResponse::Ok().json(serde_json::json!({
+        "message": message
+    }))
 }
 
 #[derive(Clone, Debug)]
