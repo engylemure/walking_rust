@@ -1,4 +1,5 @@
 mod utils;
+mod handlers;
 
 use actix_web::{get, middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
 use env_logger::Env;
@@ -11,14 +12,6 @@ use utils::env::EnvironmentValues;
 async fn hello() -> impl Responder {
     HttpResponse::Ok().json(serde_json::json!({
         "message": "Hello World!"
-    }))
-}
-
-#[get("/hello/{name}")]
-async fn greet(name: web::Path<String>) -> impl Responder {
-    let message = format!("Hello {name}!");
-    HttpResponse::Ok().json(serde_json::json!({
-        "message": message
     }))
 }
 
