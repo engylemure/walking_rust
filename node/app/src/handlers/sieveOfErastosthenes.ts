@@ -9,7 +9,7 @@ class SieveOfEratosthenes extends EventEmitter {
 
     calculate(n: number) {
         if (Number.isNaN(n)) throw new Error("Not a Number!");
-        if (n < this.lastCalculated) {
+        if (n <= this.lastCalculated) {
             return {
                 amountOfPrimes: this.takePrimes(n).length,
                 isCalculating: this.isCalculating
