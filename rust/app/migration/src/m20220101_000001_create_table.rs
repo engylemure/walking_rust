@@ -44,7 +44,6 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Message::Content).text().not_null())
                     .col(ColumnDef::new(Message::UserId).integer().not_null())
                     .col(ColumnDef::new(Message::ChannelId).integer().not_null())
-                    .col(ColumnDef::new(Message::AnswerToId).integer())
                     .col(ColumnDef::new(Message::CreatedAt).date_time().not_null())
                     .col(ColumnDef::new(Message::UpdatedAt).date_time().not_null())
                     .to_owned(),
@@ -83,14 +82,6 @@ impl MigrationTrait for Migration {
                     .to(Channel::Table, Channel::Id)
                     .to_owned(),
             )
-            .await?;
-        manager
-            .create_foreign_key(
-                sea_query::ForeignKey::create()
-                    .from(Message::Table, Message::AnswerToId)
-                    .to(Message::Table, Message::Id)
-                    .to_owned(),
-            )
             .await
     }
 
@@ -123,7 +114,6 @@ enum Message {
     Content,
     UserId,
     ChannelId,
-    AnswerToId,
     CreatedAt,
     UpdatedAt,
 }

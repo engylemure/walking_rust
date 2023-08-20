@@ -1,5 +1,6 @@
 mod handlers;
 mod utils;
+mod models;
 
 use actix_web::{get, middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
 use env_logger::Env;
@@ -17,7 +18,7 @@ async fn hello() -> impl Responder {
     }))
 }
 
-#[tokio::main]
+#[actix_web::main]
 pub async fn start() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init_from_env(Env::default().default_filter_or("info"));
     let env_values = Arc::new(EnvironmentValues::init());

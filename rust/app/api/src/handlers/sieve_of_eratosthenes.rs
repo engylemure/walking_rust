@@ -1,5 +1,4 @@
 use actix_web::{get, web, HttpResponse, Responder};
-use log::info;
 use serde::Serialize;
 use std::sync::{
     atomic::{AtomicBool, AtomicU64, Ordering},
@@ -13,7 +12,7 @@ use crate::utils::app_state::AppState;
 pub struct SieveOfEratosthenes {
     is_calculating: Arc<AtomicBool>,
     last_calculated: Arc<AtomicU64>,
-    bool_arr: Arc<Mutex<Vec<bool>>>,
+    bool_arr: Arc<Mutex<Vec<Option<()>>>>,
     is_calculating_sender: broadcast::Sender<bool>,
 }
 
@@ -58,7 +57,7 @@ impl SieveOfEratosthenes {
             .into_iter()
             .take(n as usize - 2)
             .enumerate()
-            .filter_map(|(i, val)| val.then(|| i as u32 + 2))
+            .filter_map(|(i, val)| val.map(|_| i as u32 + 2))
             .collect()
     }
 
@@ -77,26 +76,33 @@ impl SieveOfEratosthenes {
           if n <= self.last_calculated.load(Ordering::Acquire) { return };
         }
         self.is_calculating(true);
-        let mut bool_arr = vec![true; n as usize];
+        let mut bool_arr = vec![Some(()); n as usize];
         for i in 2..=(f64::sqrt(n as f64) as u64 + 1) {
-            if bool_arr[i as usize] {
+            if bool_arr[i as usize].is_some() {
                 for j in ((i * i)..n).step_by(i as usize) {
-                    bool_arr[j as usize] = false;
+                    bool_arr[j as usize] = None;
                 }
             }
         }
-        info!("bool_arr.len() = {}", bool_arr.len());
         {
             *self.bool_arr.lock().await = bool_arr;
         }
         self.last_calculated.store(n, Ordering::SeqCst);
         self.is_calculating(false);
     }
+
+    pub fn is_calculating_rcv(&self) -> broadcast::Receiver<bool> {
+        self.is_calculating_sender.subscribe()
+    }
 }
 
 #[get("/{n}")]
 async fn calculate(n: web::Path<u64>, app_state: web::Data<AppState>) -> impl Responder {
-    HttpResponse::Ok().json(app_state.sieve.calculate(n.into_inner()).await)
+    let n = n.into_inner();
+    if n > 1_000_000_000 {
+        return HttpResponse::BadRequest().json(serde_json::json!({ "message": format!("Invalid value={} should be smaller or equal than 1_000_000_000", n) }))
+    }
+    HttpResponse::Ok().json(app_state.sieve.calculate(n).await)
 }
 
 #[get("/status")]

@@ -12,6 +12,7 @@ export function websocket(ws: ws, req: Request) {
     }
 
     function onChannelMessage(rawMessage: string) {
+        console.log(rawMessage)
         ws.send(rawMessage);
     }
 

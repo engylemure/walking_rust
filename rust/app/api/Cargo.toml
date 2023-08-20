@@ -13,7 +13,7 @@ actix-web = "4"
 env_logger = "0.10.0"
 log = "0.4.19"
 redis = { version = "0.23.1", features = ["tokio-comp"] }
-tokio = { version = "1.29.1", features = ["full"] }
+tokio = { version = "1.32", features = ["full", "rt"] }
 migration = { path = "../migration" }
 entity = { path = "../entity" }
 sea-orm = { version = "0.12", features = ["sqlx-postgres","serde_json","with-chrono", "with-json", "macros"] }
@@ -24,3 +24,4 @@ futures-util = "0.3.28"
 chrono = { version = "0.4.26", features = ["serde"] }
 actix-web-actors = "4.2.0"
 actix = "0.13.0"
+actix-ws = "0.2.5"

@@ -12,7 +12,6 @@ pub struct Model {
     pub content: String,
     pub user_id: i32,
     pub channel_id: i32,
-    pub answer_to_id: Option<i32>,
     pub created_at: DateTime,
     pub updated_at: DateTime,
 }
@@ -27,14 +26,6 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Channel,
-    #[sea_orm(
-        belongs_to = "Entity",
-        from = "Column::AnswerToId",
-        to = "Column::Id",
-        on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
-    SelfRef,
     #[sea_orm(
         belongs_to = "super::user::Entity",
         from = "Column::UserId",
