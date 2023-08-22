@@ -1,6 +1,7 @@
 import express, { NextFunction } from "express";
 import cookieParser from 'cookie-parser';
 import expressWS from 'express-ws';
+import cors from 'cors';
 import morgan from 'morgan';
 import { Router, Request, Response } from "express";
 import 'dotenv/config';
@@ -15,6 +16,7 @@ const expressWsInstance = expressWS(app);
 
 const route = Router();
 
+app.use(cors())
 app.use(cookieParser());
 app.use(express.json());
 

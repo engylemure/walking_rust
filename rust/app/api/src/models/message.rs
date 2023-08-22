@@ -1,8 +1,8 @@
 use chrono::NaiveDateTime as DateTime;
 use entity::user::Model as User;
-use serde::Deserialize;
+use serde::Serialize;
 
-#[derive(Deserialize)]
+#[derive(Serialize)]
 pub struct Message {
     pub id: i32,
     pub content: String,
@@ -23,7 +23,7 @@ impl From<(entity::message::Model, User)> for Message {
                 updated_at,
                 ..
             },
-            User,
+            user,
         ): (entity::message::Model, User),
     ) -> Self {
         Self {
@@ -32,7 +32,7 @@ impl From<(entity::message::Model, User)> for Message {
             channel_id,
             created_at,
             updated_at,
-            user: User,
+            user,
         }
     }
 }

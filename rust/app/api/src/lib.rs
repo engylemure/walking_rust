@@ -1,12 +1,12 @@
 mod handlers;
-mod utils;
 mod models;
+mod utils;
 
-use actix_web::{get, middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
-use env_logger::Env;
+use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use handlers::{channel, sieve_of_eratosthenes, user, ws};
-use log;
+use tracing_subscriber::fmt::format::FmtSpan;
 use std::{net::SocketAddr, sync::Arc};
+use tracing_actix_web::TracingLogger;
 use utils::{app_state::AppState, env::EnvironmentValues};
 
 use crate::handlers::sieve_of_eratosthenes::SieveOfEratosthenes;
@@ -20,7 +20,10 @@ async fn hello() -> impl Responder {
 
 #[actix_web::main]
 pub async fn start() -> Result<(), Box<dyn std::error::Error>> {
-    env_logger::init_from_env(Env::default().default_filter_or("info"));
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
+        .init();
     let env_values = Arc::new(EnvironmentValues::init());
     let app_state = web::Data::new(
         AppState::new(
@@ -31,11 +34,11 @@ pub async fn start() -> Result<(), Box<dyn std::error::Error>> {
         .await?,
     );
     let socket: SocketAddr = format!("[::]:{}", env_values.server_port).parse()?;
-    log::info!("Starting App Server at: {}", socket);
+    tracing::info!("Starting App Server at: {}", socket);
     HttpServer::new(move || {
         App::new()
             .app_data(app_state.clone())
-            .wrap(Logger::default())
+            .wrap(TracingLogger::default())
             .configure(channel::config)
             .configure(user::config)
             .configure(ws::config)
