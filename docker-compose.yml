@@ -14,42 +14,6 @@ services:
     network_mode: bridge
     ports:
       - 6379:6379
-  node:
-    build: 
-      context: ./
-      dockerfile: ./docker/node.Dockerfile
-    volumes:
-      - ./node:/opt/app
-    network_mode: bridge
-    env_file: ./env
-    environment:
-      - NODE_ENV=dev
-    depends_on:
-      - db
-      - redis
-    links:
-      - db
-      - redis
-    ports:
-      - 8092:80
-  python:
-    build: 
-      context: ./
-      dockerfile: ./docker/python.Dockerfile
-    volumes:
-      - ./python:/opt/app
-    network_mode: bridge
-    env_file: ./env
-    environment: 
-      - PYTHON_ENV=dev
-    depends_on:
-      - db
-      - redis
-    links:
-      - db
-      - redis
-    ports:
-      - 8091:80
   rust:
     build: 
       context: ./
@@ -69,3 +33,39 @@ services:
       - redis
     ports:
       - 8090:80
+  node:
+    build: 
+      context: ./
+      dockerfile: ./docker/node.Dockerfile
+    volumes:
+      - ./node:/opt/app
+    network_mode: bridge
+    env_file: ./env
+    environment:
+      - NODE_ENV=dev
+    depends_on:
+      - db
+      - redis
+    links:
+      - db
+      - redis
+    ports:
+      - 8091:80
+  # python:
+  #   build: 
+  #     context: ./
+  #     dockerfile: ./docker/python.Dockerfile
+  #   volumes:
+  #     - ./python:/opt/app
+  #   network_mode: bridge
+  #   env_file: ./env
+  #   environment: 
+  #     - PYTHON_ENV=dev
+  #   depends_on:
+  #     - db
+  #     - redis
+  #   links:
+  #     - db
+  #     - redis
+  #   ports:
+  #     - 8092:80
