@@ -16,7 +16,12 @@ const expressWsInstance = expressWS(app);
 
 const route = Router();
 
-app.use(cors())
+app.use(cors({
+  origin: (origin, callback) => {
+    callback(null, true)
+  },
+  credentials: true
+}))
 app.use(cookieParser());
 app.use(express.json());
 

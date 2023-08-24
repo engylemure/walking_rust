@@ -1,15 +1,19 @@
 use actix_web::{get, post, web, Responder, HttpResponse};
 use crate::utils::app_state::AppState;
 use entity::channel::Entity as Channel;
-use sea_orm::{EntityTrait, ActiveModelTrait, ActiveValue::Set, TransactionTrait};
+use sea_orm::{EntityTrait, ModelTrait, ActiveModelTrait, ActiveValue::Set, TransactionTrait};
 use serde::Deserialize;
 
 #[get("/{channel_id}")]
 pub async fn get(path: web::Path<u32>, app_state: web::Data<AppState>) -> impl Responder {
     match Channel::find_by_id(*path as i32).one(&app_state.db_conn).await {
-      Ok(Some(channel)) => HttpResponse::Ok().json(channel),
-      Ok(None) => HttpResponse::NotFound().finish(),
-      Err(_) => HttpResponse::InternalServerError().finish(),
+      Ok(Some(channel)) => {
+        let messages = channel.find_related(entity::message::Entity).find_also_related(entity::user::Entity).all(&app_state.db_conn).await.unwrap_or_default().into_iter().filter_map(|(msg, user)| user.map(|user| (msg, user))).collect();
+        let channel = crate::models::Channel::from((channel, messages));
+        return HttpResponse::Ok().json(channel)
+      },
+      Ok(None) => return HttpResponse::NotFound().finish(),
+      _  => HttpResponse::InternalServerError().finish(),
     }
 }
 

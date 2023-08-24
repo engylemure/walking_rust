@@ -1,5 +1,5 @@
 use crate::utils::{app_state::AppState, auth::Auth};
-use actix_web::{cookie::Cookie, get, post, web, HttpResponse, Responder};
+use actix_web::{cookie::Cookie, get, post, web, HttpResponse, Responder, HttpRequest};
 use entity::{user, user::Entity as User};
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, QueryFilter, TransactionTrait,
@@ -61,9 +61,16 @@ pub async fn all(app_state: web::Data<AppState>) -> impl Responder {
     }
 }
 
+#[post("/logout")]
+pub async fn logout(req: HttpRequest) -> impl Responder {
+    let mut resp = HttpResponse::NoContent();
+    if let Some(mut cookie) = req.cookie("userId") {
+        cookie.make_removal();
+        resp.cookie(cookie);
+    }
+    resp.finish()
+}
+
 pub fn config(cfg: &mut web::ServiceConfig) {
-    cfg.service(signup)
-        .service(me)
-        .service(all)
-        .service(login);
+    cfg.service(signup).service(me).service(all).service(login).service(logout);
 }

@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use std::sync::Arc;
 use crate::{utils::app_state::AppState, utils::auth::Auth};
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
@@ -8,8 +7,9 @@ use futures_util::{
     future::{select, Either},
     StreamExt,
 };
-use sea_orm::{ActiveModelTrait, ActiveValue::Set};
+use sea_orm::{ActiveModelTrait, ActiveValue::Set, ModelTrait};
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
 async fn ws(
     app_state: std::sync::Arc<AppState>,
@@ -57,8 +57,15 @@ async fn ws(
                         .await
                         {
                             if let Ok(mut conn) = redis_conn.get_async_connection().await {
-                                let _ = redis::cmd("PUBLISH").arg(&[&format!("/channel/{}", channel_id), &serde_json::to_string(&msg).unwrap()]).query_async::<_, ()>(&mut conn).await;
-                                let _ = session
+                                if let Ok(Some(user)) = msg.find_related(entity::user::Entity).one(&db_conn).await {
+                                    let _ = redis::cmd("PUBLISH")
+                                        .arg(&[
+                                            &format!("/channel/{}", channel_id),
+                                            &crate::models::Message::from((msg, user)).to_json(),
+                                        ])
+                                        .query_async::<_, ()>(&mut conn)
+                                        .await;
+                                    let _ = session
                                         .text(
                                             Msg::new(
                                                 "sendMessage",
@@ -67,6 +74,7 @@ async fn ws(
                                             .to_json(),
                                         )
                                         .await;
+                                }
                             }
                         }
                     }
@@ -98,6 +106,17 @@ async fn ws(
                                                         .map(|msg| msg.get_payload::<String>().ok())
                                                         .flatten()
                                                     {
+                                                        let msg =
+                                                            Msg::new(
+                                                                "channelMessage",
+                                                                serde_json::from_str::<
+                                                                    serde_json::Value,
+                                                                >(
+                                                                    &msg
+                                                                )
+                                                                .unwrap(),
+                                                            )
+                                                            .to_json();
                                                         let _ = session.text(msg).await;
                                                     }
                                                     rx
@@ -151,7 +170,12 @@ async fn index(
     stream: web::Payload,
 ) -> Result<HttpResponse, Error> {
     let (res, session, msg_stream) = actix_ws::handle(&req, stream)?;
-    tokio::task::spawn_local(ws(app_state.into_inner().clone(), Arc::new(auth), session, msg_stream));
+    tokio::task::spawn_local(ws(
+        app_state.into_inner().clone(),
+        Arc::new(auth),
+        session,
+        msg_stream,
+    ));
     Ok(res)
 }
 

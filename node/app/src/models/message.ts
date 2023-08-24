@@ -8,7 +8,6 @@ export class Message extends Model {
     declare content: string;
     declare user_id: number;
     declare channel_id: number;
-    declare answer_to_id?: number;
     declare created_at: string;
     declare updated_at: string;
 }
@@ -32,10 +31,6 @@ Message.init({
         type: DataTypes.INTEGER,
         allowNull: false,
     },
-    answer_to_id: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-    },
     created_at: {
         type: DataTypes.DATE,
         allowNull: false
@@ -57,19 +52,9 @@ Message.hasOne(Channel, {
     },
     as: 'channel'
 });
-Message.hasOne(User, {
-    foreignKey: {
-        name: 'id',
-        field: 'user_id'
-    },
-    as: 'user',
-});
-Message.hasOne(Message, {
-    foreignKey: {
-        name: 'id',
-        field: 'answer_to_id'
-    },
-    as: 'answerTo'
+Message.belongsTo(User, {
+    foreignKey: 'user_id',
+    as: 'user'
 });
 Channel.hasMany(Message, {
     foreignKey: {

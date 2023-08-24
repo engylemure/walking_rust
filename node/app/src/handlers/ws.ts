@@ -2,6 +2,8 @@ import { Request } from "express";
 import Context from "../utils/context";
 import * as ws from 'ws';
 import { sieve } from "./sieveOfErastosthenes";
+import { User } from "../models";
+import { Message } from "../models/message";
 
 export function websocket(ws: ws, req: Request) {
     const ctx = Context.get(req);
@@ -12,8 +14,7 @@ export function websocket(ws: ws, req: Request) {
     }
 
     function onChannelMessage(rawMessage: string) {
-        console.log(rawMessage)
-        ws.send(rawMessage);
+        ws.send(getMessage('channelMessage', JSON.parse(rawMessage)));
     }
 
     ws.on('message', async (rawMsg) => {
@@ -22,15 +23,18 @@ export function websocket(ws: ws, req: Request) {
             switch(message.type) {
                 case 'sendMessage': {
                     const now = new Date();
-                    const msg = await ctx.db.models.Message.create({
+                    console.log(user.id);
+                    const msg = await Message.create({
                         user_id: user.id,
                         channel_id: message.data.channelId,
                         content: message.data.content,
                         created_at: now,
                         updated_at: now
                     });
-                    await (msg as any).getUser();
-                    await ctx.redis.publish(`/channel/${message.data.channelId}`, JSON.stringify(msg));
+                    await msg.reload({
+                        include: [{ model: User, as: 'user' }]
+                    });
+                    await ctx.redis.publish(`/channel/${message.data.channelId}`, getMessage('channelMessage', msg));
                     break;
                 }
                 case 'subscribe':

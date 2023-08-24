@@ -32,4 +32,4 @@ User.init({
     tableName: 'user',
     timestamps: false
     // Other model options go here
-})
+});

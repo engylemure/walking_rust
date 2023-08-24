@@ -8,6 +8,7 @@ use tracing_subscriber::fmt::format::FmtSpan;
 use std::{net::SocketAddr, sync::Arc};
 use tracing_actix_web::TracingLogger;
 use utils::{app_state::AppState, env::EnvironmentValues};
+use actix_cors::Cors;
 
 use crate::handlers::sieve_of_eratosthenes::SieveOfEratosthenes;
 
@@ -33,10 +34,12 @@ pub async fn start() -> Result<(), Box<dyn std::error::Error>> {
         )
         .await?,
     );
+
     let socket: SocketAddr = format!("[::]:{}", env_values.server_port).parse()?;
     tracing::info!("Starting App Server at: {}", socket);
     HttpServer::new(move || {
         App::new()
+            .wrap(Cors::permissive().allowed_origin_fn(|_, _| true))
             .app_data(app_state.clone())
             .wrap(TracingLogger::default())
             .configure(channel::config)

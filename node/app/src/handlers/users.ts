@@ -19,7 +19,8 @@ export async function signup(req: Request, res: Response) {
         const user = await User.create({ user_name: input.userName, created_at: now, updated_at: now });
         res.cookie('userId', user.id.toString());
         res.json(user);
-    } catch (_) {
+    } catch (err) {
+        console.error(err)
         res.status(500).end()
     }
 }
@@ -31,7 +32,8 @@ export async function login(req: Request, res: Response) {
         if (!user) throw new Error()
         res.cookie('userId', user.id.toString());
         res.json(user);
-    } catch (_) {
+    } catch (err) {
+        console.error(err)
         res.status(500).end()
     }
 }
