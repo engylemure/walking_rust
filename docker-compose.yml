@@ -23,7 +23,7 @@ services:
     network_mode: bridge
     env_file: ./env
     environment:
-      - RUST_ENV=dev
+      - RUST_ENV=prod
       - RUST_LOG=debug
     depends_on:
       - db
@@ -42,7 +42,7 @@ services:
     network_mode: bridge
     env_file: ./env
     environment:
-      - NODE_ENV=dev
+      - NODE_ENV=prod
     depends_on:
       - db
       - redis
